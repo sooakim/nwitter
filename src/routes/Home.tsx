@@ -1,13 +1,18 @@
-import React, {ChangeEvent, MouseEvent, useCallback, useState} from 'react'
+import React, {ChangeEvent, MouseEvent, useCallback, useEffect, useState} from 'react'
 import Navigation from '../components/navigation'
-import {createTweet} from '../libs/firebase/firestore'
+import {createTweet, fetchTweets} from '../libs/firebase/firestore'
+import {ITweet} from '../models/Tweet'
 
 const Home = () => {
   const [tweet, setTweet] = useState('')
+  const [tweets, setTweets] = useState<ITweet[]>([])
   const onSubmit = useCallback(async (event: MouseEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    await createTweet(tweet)
+    try {
+      await createTweet(tweet)
+    } catch {
+    }
   }, [tweet])
   const onChange = useCallback(({target: {name, value}}: ChangeEvent<HTMLInputElement>) => {
     switch (name) {
@@ -19,6 +24,13 @@ const Home = () => {
     }
   }, [])
 
+  useEffect(() => {
+    (async () => {
+      const tweets = await fetchTweets()
+      setTweets(tweets)
+    })()
+  }, [])
+
   return (
     <div>
       <Navigation/>
@@ -26,6 +38,14 @@ const Home = () => {
         <input name="tweet" type="text" placeholder="What's going on" maxLength={120} onChange={onChange}/>
         <input type="submit" value="tweet"/>
       </form>
+
+      <div>
+        <ul>
+          {
+            tweets.map((tweet) => <li key={tweet.id}>{`${tweet.content} - ${tweet.createdAt.toString()}`}</li>)
+          }
+        </ul>
+      </div>
     </div>
   )
 }
