@@ -9,7 +9,8 @@ import {
   setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signOut
+  signOut,
+  User
 } from 'firebase/auth'
 import {logEvent} from './analytics'
 import {log} from '../logger'
@@ -21,6 +22,16 @@ const auth = getAuth(app);
 
 export const googleProvider = new GoogleAuthProvider()
 export const githubProvider = new GithubAuthProvider()
+
+export const getUser = (): User | null => auth.currentUser
+
+export const requireUser = (): User => {
+  const user = auth.currentUser
+  if (user === null) {
+    throw Error('unauthorized user')
+  }
+  return user
+}
 
 export const setSignChanged = (callback: ((user: {isSigned: boolean}) => void)): (() => void) => {
   return onAuthStateChanged(auth, (user) => {

@@ -1,7 +1,8 @@
 import React, {ChangeEvent, MouseEvent, useCallback, useEffect, useState} from 'react'
 import Navigation from '../components/navigation'
-import {createTweet, fetchTweets} from '../libs/firebase/firestore'
+import {createTweet, fetchTweetsWithCallback} from '../libs/firebase/firestore'
 import {ITweet} from '../models/Tweet'
+import Tweet from '../components/tweet'
 
 const Home = () => {
   const [tweet, setTweet] = useState('')
@@ -25,10 +26,9 @@ const Home = () => {
   }, [])
 
   useEffect(() => {
-    (async () => {
-      const tweets = await fetchTweets()
+    return fetchTweetsWithCallback((tweets) => {
       setTweets(tweets)
-    })()
+    })
   }, [])
 
   return (
@@ -42,7 +42,7 @@ const Home = () => {
       <div>
         <ul>
           {
-            tweets.map((tweet) => <li key={tweet.id}>{`${tweet.content} - ${tweet.createdAt.toString()}`}</li>)
+            tweets.map((tweet) => <Tweet key={tweet.id} tweet={tweet}/>)
           }
         </ul>
       </div>
