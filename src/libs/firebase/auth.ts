@@ -1,11 +1,14 @@
-import {app} from './'
+import app from './'
 import {
   browserSessionPersistence,
   createUserWithEmailAndPassword,
   getAuth,
+  GithubAuthProvider,
+  GoogleAuthProvider,
   onAuthStateChanged,
   setPersistence,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut
 } from 'firebase/auth'
 import {logEvent} from './analytics'
@@ -16,7 +19,8 @@ const auth = getAuth(app);
   await setPersistence(auth, browserSessionPersistence)
 })()
 
-export const isSigned = auth.currentUser !== null
+export const googleProvider = new GoogleAuthProvider()
+export const githubProvider = new GithubAuthProvider()
 
 export const setSignChanged = (callback: ((user: {isSigned: boolean}) => void)): (() => void) => {
   return onAuthStateChanged(auth, (user) => {
@@ -42,6 +46,30 @@ export const login = async (email: string, password: string) => {
   try {
     await signInWithEmailAndPassword(auth, email, password)
     logEvent('login')
+  } catch (error) {
+    log(error)
+    throw error
+  }
+}
+
+export const loginWithGoogle = async () => {
+  try {
+    await signInWithPopup(auth, googleProvider)
+    logEvent('login', {
+      method: 'google'
+    })
+  } catch (error) {
+    log(error)
+    throw error
+  }
+}
+
+export const loginWithGithub = async () => {
+  try {
+    await signInWithPopup(auth, githubProvider)
+    logEvent('login', {
+      method: 'github'
+    })
   } catch (error) {
     log(error)
     throw error

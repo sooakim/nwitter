@@ -1,5 +1,5 @@
-import React, {ChangeEvent, FormEvent, useCallback, useState} from 'react'
-import {login, register} from '../libs/firebase/auth'
+import React, {ChangeEvent, FormEvent, MouseEvent, useCallback, useState} from 'react'
+import {login, loginWithGithub, loginWithGoogle, register} from '../libs/firebase/auth'
 
 const Auth = () => {
   const [email, setEmail] = useState('')
@@ -36,6 +36,18 @@ const Auth = () => {
       }
     }
   }, [email, password, isRegister])
+  const onSocialClick = useCallback(async ({currentTarget: {name}}: MouseEvent<HTMLButtonElement>) => {
+    switch (name) {
+      case 'google':
+        await loginWithGoogle()
+        break
+      case 'github':
+        await loginWithGithub()
+        break
+      default:
+        break
+    }
+  }, [])
 
   return (
     <div>
@@ -49,8 +61,8 @@ const Auth = () => {
       </form>
 
       <div>
-        <button>Continue with Google</button>
-        <button>Continue with Github</button>
+        <button name="google" onClick={onSocialClick}>Continue with Google</button>
+        <button name="github" onClick={onSocialClick}>Continue with Github</button>
       </div>
 
       <div>

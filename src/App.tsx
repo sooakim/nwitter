@@ -1,11 +1,10 @@
 import React, {useEffect, useState} from 'react'
 import Router from './Router'
-import * as auth from './libs/firebase/auth'
 import {setSignChanged} from './libs/firebase/auth'
 
 const App: React.FC = () => {
   const [isInitialized, setInitialized] = useState(false)
-  const [isSigned, setSigned] = useState(auth.isSigned)
+  const [isSigned, setSigned] = useState(false)
 
   useEffect(() => {
     return setSignChanged(({isSigned}) => {
