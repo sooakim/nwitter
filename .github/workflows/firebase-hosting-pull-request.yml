@@ -8,6 +8,8 @@ jobs:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - run: |
           touch .env.dev
           echo "REACT_APP_FIREBASE_API_KEY=$REACT_APP_FIREBASE_API_KEY" >> .env.dev
@@ -28,7 +30,6 @@ jobs:
           REACT_APP_APP_ID: ${{ secrets.REACT_APP_APP_ID }}
           REACT_APP_MEASUREMENT_ID: ${{ secrets.REACT_APP_MEASUREMENT_ID }}
 
-      - uses: actions/checkout@v2
       - run: |
           npm install
           npm run build-dev
