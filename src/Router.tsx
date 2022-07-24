@@ -1,11 +1,13 @@
-import React, {useState} from 'react'
+import React from 'react'
 import {HashRouter, Route, Routes} from 'react-router-dom'
 import Auth from './routes/Auth'
 import Home from './routes/Home'
 
-const Router = () => {
-  const [isSigned] = useState(false)
+interface IRouterProps {
+  isSigned?: boolean;
+}
 
+const Router = ({isSigned}: IRouterProps) => {
   return (
     <HashRouter>
       <Routes>
