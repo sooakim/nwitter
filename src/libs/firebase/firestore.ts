@@ -8,7 +8,8 @@ import {
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp
+  serverTimestamp,
+  updateDoc
 } from 'firebase/firestore'
 import app from './'
 import {log} from '../logger'
@@ -25,7 +26,8 @@ export const createTweet = async (tweet: string) => {
     await addDoc(collectionRef, {
       userId: uid,
       content: tweet,
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     })
     logEvent('createTweet', {
       'content': tweet
@@ -43,12 +45,13 @@ export const fetchTweets = async (): Promise<ITweet[]> => {
     logEvent('fetchTweets')
 
     return tweetsSnapshot.docs.map((doc) => {
-      const {content, userId, createdAt} = doc.data()
+      const {content, userId, createdAt, updatedAt} = doc.data()
       return ({
         id: doc.id,
         userId: userId,
         content: content,
         createdAt: new Date(createdAt.toMillis()),
+        updatedAt: new Date(updatedAt.toMillis()),
         isOwner: () => (requireUser().uid === userId)
       })
     })
@@ -63,12 +66,13 @@ export const fetchTweetsWithCallback = (callback: ((tweets: ITweet[]) => void)):
   const queryRef = query(collectionRef, orderBy('createdAt', 'desc'))
   return onSnapshot(queryRef, (snapshot) => {
     const tweets = snapshot.docs.map((doc) => {
-      const {content, userId, createdAt} = doc.data()
+      const {content, userId, createdAt, updatedAt} = doc.data()
       return ({
         id: doc.id,
         userId: userId,
         content: content,
         createdAt: createdAt === null ? new Date() : new Date(createdAt.toMillis()),
+        updatedAt: updatedAt === null ? new Date() : new Date(updatedAt.toMillis()),
         isOwner: () => (requireUser().uid === userId)
       })
     })
@@ -82,6 +86,21 @@ export const deleteTweet = async (id: string) => {
   try {
     await deleteDoc(documentRef)
     logEvent('deleteTweet')
+  } catch (error) {
+    log(error)
+    throw error
+  }
+}
+
+export const updateTweet = async (id: string, content: string) => {
+  const collectionRef = collection(firestore, 'tweets')
+  const documentRef = doc(collectionRef, id)
+  try {
+    await updateDoc(documentRef, {
+      content: content,
+      updatedAt: serverTimestamp()
+    })
+    logEvent('updateTweet')
   } catch (error) {
     log(error)
     throw error

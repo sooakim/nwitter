@@ -3,5 +3,6 @@ export interface ITweet {
   userId: string;
   content: string;
   createdAt: Date;
+  updatedAt: Date;
   isOwner: () => boolean;
 }
