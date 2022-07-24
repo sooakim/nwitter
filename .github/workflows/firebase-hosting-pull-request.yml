@@ -8,6 +8,9 @@ jobs:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - run: npm install
+
       - name: Generate/.env.dev
       - run: |
           touch .env.dev
@@ -19,10 +22,8 @@ jobs:
           echo "REACT_APP_APP_ID=${{ secrets.REACT_APP_APP_ID }}" >> .env.dev
           echo "REACT_APP_MEASUREMENT_ID=${{ secrets.REACT_APP_MEASUREMENT_ID }}" >> .env.dev
 
-      - uses: actions/checkout@v2
-      - run: |
-          npm install
-          npm run build dev
+      - name: Build/dev
+      - run: npm run build dev
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
